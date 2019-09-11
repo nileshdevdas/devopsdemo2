@@ -2,7 +2,13 @@ plugins {
 	id 'org.springframework.boot' version '2.1.8.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'java'
+	id 'maven'
+	id "org.sonarqube" version "2.7.1"
+	id 'jacoco'
 }
+apply plugin : 'java'
+apply plugin: 'jacoco'
+apply plugin: 'org.sonarqube'
 
 group = 'com.siemens'
 version = '0.0.1-SNAPSHOT'
@@ -16,3 +22,52 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			repository(url: "http://localhost:8081/repository/siemenshosted/") {
+				authentication(userName: "admin", password: "admin123")
+			}
+			pom.version = "1.0"
+			pom.artifactId = "myweb"
+			pom.groupId = "com.siemens"
+		}
+	}
+}
+
+
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		csv.enabled true
+		html.destination file("${buildDir}/jacoco/html")
+		csv.destination file("${buildDir}/jacoco/csv")
+		xml.destination file("${buildDir}/jacoco/xml")
+
+	}
+}
+
+
+
+
+
+
+sonarqube {
+	properties {
+		property "sonar.projectName", "Java :: Simple Project :: SonarQube Scanner for Gradle"
+		property "sonar.projectKey", "org.sonarqube:myweb"
+		property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+		property "sonar.host.url" , "http://localhost:9000"
+	}
+}
+
+
+
+
+
+
+
+
+
+
